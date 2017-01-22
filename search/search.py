@@ -87,12 +87,81 @@ def depthFirstSearch(problem):
     print "Start's successors:", problem.getSuccessors(problem.getStartState())
     """
     "*** YOUR CODE HERE ***"
-    util.raiseNotDefined()
+  
+
+    closed = set()
+    fringe = util.Queue() 
+    node = [ problem.getStartState(), [] ]
+
+    fringe.push( node )
+
+    while True:
+        if fringe.isEmpty(): 
+            return False
+        
+        node  = fringe.pop()        
+        if node[0] == problem.isGoalState( node[0] ):
+            return directionsParser( node[1] )
+        
+        if node[0] not in closed:
+            closed.add( node[0] )
+            
+            for child in problem.getSuccessors( node[0] ):
+                nextState = child[0]
+                nextDirections = node[1] + [child[1]]
+                newNode = [ nextState, nextDirections ]
+                fringe.push( newNode )
+
+            
+
+def directionsParser(stringList):
+    from game import Directions
+    directions = []
+
+    for string in stringList:
+        if string == 'North':
+            directions += Directions.NORTH
+        if string == 'South':
+            directions += Directions.SOUTH
+        if string == 'East':
+            directions += Directions.EAST
+        if string == 'West':
+            directions += Directions.WEST
+
+    return directions
+
+
 
 def breadthFirstSearch(problem):
-    """Search the shallowest nodes in the search tree first."""
-    "*** YOUR CODE HERE ***"
-    util.raiseNotDefined()
+    closed = set()
+    fringe = util.Stack() 
+    node = (problem.getStartState(), [])
+
+    fringe.push( (problem.getStartState(), []) )
+
+    while True:
+        if fringe.isEmpty(): 
+            return False
+        
+        node  = fringe.pop()        
+        if node[0] == problem.isGoalState( node[0] ):
+            return directionsParser( node[1] )
+        
+        if node[0] not in closed:
+            closed.add( node[0] )
+            
+            for child in problem.getSuccessors( node[0] ):
+                nextState = child[0]
+
+                print node[1]
+                print [child[1]]
+
+                nextDirections = node[1] + [child[1]]
+                newNode = ( nextState, nextDirections )
+                fringe.push( child )
+
+
+
 
 def uniformCostSearch(problem):
     """Search the node of least total cost first."""
