@@ -91,26 +91,27 @@ def depthFirstSearch(problem):
 
     closed = set()
     fringe = util.Queue() 
-    node = [ problem.getStartState(), [] ]
-
-    fringe.push( node )
+    fringe.push( [problem.getStartState(), []] )
 
     while True:
-        if fringe.isEmpty(): 
-            return False
+        if fringe.isEmpty(): return False
         
-        node  = fringe.pop()        
-        if node[0] == problem.isGoalState( node[0] ):
-            return directionsParser( node[1] )
+        node = fringe.pop()        
+        if problem.isGoalState( node[0] ):
+
+            print node
+            dirs = directionsParser( node[1] )
+            return dirs
         
         if node[0] not in closed:
             closed.add( node[0] )
             
             for child in problem.getSuccessors( node[0] ):
                 nextState = child[0]
-                nextDirections = node[1] + [child[1]]
+                nextDirections = node[1] + [child[1][0]]
                 newNode = [ nextState, nextDirections ]
                 fringe.push( newNode )
+
 
             
 
@@ -119,13 +120,13 @@ def directionsParser(stringList):
     directions = []
 
     for string in stringList:
-        if string == 'North':
+        if string == 'N':
             directions += Directions.NORTH
-        if string == 'South':
+        if string == 'S':
             directions += Directions.SOUTH
-        if string == 'East':
+        if string == 'E':
             directions += Directions.EAST
-        if string == 'West':
+        if string == 'W':
             directions += Directions.WEST
 
     return directions
