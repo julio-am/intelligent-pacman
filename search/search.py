@@ -98,69 +98,39 @@ def depthFirstSearch(problem):
         
         node = fringe.pop()        
         if problem.isGoalState( node[0] ):
-
-            print node
-            dirs = directionsParser( node[1] )
-            return dirs
+            return node[1]
         
         if node[0] not in closed:
             closed.add( node[0] )
             
             for child in problem.getSuccessors( node[0] ):
                 nextState = child[0]
-                nextDirections = node[1] + [child[1][0]]
+                nextDirections = node[1] + [child[1]]
                 newNode = [ nextState, nextDirections ]
                 fringe.push( newNode )
-
-
-            
-
-def directionsParser(stringList):
-    from game import Directions
-    directions = []
-
-    for string in stringList:
-        if string == 'N':
-            directions += Directions.NORTH
-        if string == 'S':
-            directions += Directions.SOUTH
-        if string == 'E':
-            directions += Directions.EAST
-        if string == 'W':
-            directions += Directions.WEST
-
-    return directions
 
 
 
 def breadthFirstSearch(problem):
     closed = set()
     fringe = util.Stack() 
-    node = (problem.getStartState(), [])
-
-    fringe.push( (problem.getStartState(), []) )
+    fringe.push( [problem.getStartState(), []] )
 
     while True:
-        if fringe.isEmpty(): 
-            return False
+        if fringe.isEmpty(): return False
         
-        node  = fringe.pop()        
-        if node[0] == problem.isGoalState( node[0] ):
-            return directionsParser( node[1] )
+        node = fringe.pop()        
+        if problem.isGoalState( node[0] ):
+            return node[1]
         
         if node[0] not in closed:
             closed.add( node[0] )
             
             for child in problem.getSuccessors( node[0] ):
                 nextState = child[0]
-
-                print node[1]
-                print [child[1]]
-
                 nextDirections = node[1] + [child[1]]
-                newNode = ( nextState, nextDirections )
-                fringe.push( child )
-
+                newNode = [ nextState, nextDirections ]
+                fringe.push( newNode )
 
 
 
