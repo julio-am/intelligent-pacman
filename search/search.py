@@ -76,42 +76,9 @@ def depthFirstSearch(problem):
     """
     Search the deepest nodes in the search tree first.
 
-    Your search algorithm needs to return a list of actions that reaches the
-    goal. Make sure to implement a graph search algorithm.
-
-    To get started, you might want to try some of these simple commands to
-    understand the search problem that is being passed in:
-
-    print "Start:", problem.getStartState()
-    print "Is the start a goal?", problem.isGoalState(problem.getStartState())
-    print "Start's successors:", problem.getSuccessors(problem.getStartState())
+    Returns a list of actions that reaches the
+    goal.
     """
-    "*** YOUR CODE HERE ***"
-  
-
-    closed = set()
-    fringe = util.Queue() 
-    fringe.push( [problem.getStartState(), []] )
-
-    while True:
-        if fringe.isEmpty(): return False
-        
-        node = fringe.pop()        
-        if problem.isGoalState( node[0] ):
-            return node[1]
-        
-        if node[0] not in closed:
-            closed.add( node[0] )
-            
-            for child in problem.getSuccessors( node[0] ):
-                nextState = child[0]
-                nextDirections = node[1] + [child[1]]
-                newNode = [ nextState, nextDirections ]
-                fringe.push( newNode )
-
-
-
-def breadthFirstSearch(problem):
     closed = set()
     fringe = util.Stack() 
     fringe.push( [problem.getStartState(), []] )
@@ -134,10 +101,54 @@ def breadthFirstSearch(problem):
 
 
 
+def breadthFirstSearch(problem):
+    closed = set()
+    fringe = util.Queue() 
+    fringe.push( [problem.getStartState(), []] )
+
+    while True:
+        if fringe.isEmpty(): return False
+        
+        node = fringe.pop()        
+        if problem.isGoalState( node[0] ):
+            return node[1]
+        
+        if node[0] not in closed:
+            closed.add( node[0] )
+            
+            for child in problem.getSuccessors( node[0] ):
+                nextState = child[0]
+                nextDirections = node[1] + [child[1]]
+                newNode = [ nextState, nextDirections ]
+                fringe.push( newNode )
+
+
+
 def uniformCostSearch(problem):
     """Search the node of least total cost first."""
-    "*** YOUR CODE HERE ***"
-    util.raiseNotDefined()
+    
+    closed = set()
+    fringe = util.PriorityQueue() 
+    fringe.push( [problem.getStartState(), [], 0], 0 )
+
+    while True:
+        if fringe.isEmpty(): return False
+        
+        node = fringe.pop()        
+        if problem.isGoalState( node[0] ):
+            return node[1]
+        
+        if node[0] not in closed:
+            closed.add( node[0] )
+            
+            for child in problem.getSuccessors( node[0] ):
+                nextState = child[0]
+                nextDirections = node[1] + [child[1]]
+                nextCost = node[2] + child[2]
+                newNode = [ nextState, nextDirections, nextCost ]
+                fringe.push( newNode, nextCost )
+
+
 
 def nullHeuristic(state, problem=None):
     """
@@ -148,8 +159,31 @@ def nullHeuristic(state, problem=None):
 
 def aStarSearch(problem, heuristic=nullHeuristic):
     """Search the node that has the lowest combined cost and heuristic first."""
-    "*** YOUR CODE HERE ***"
-    util.raiseNotDefined()
+
+    closed = set()
+    fringe = util.PriorityQueue() 
+
+    # each node will be a list of: the state, the steps taken so far, and cost.
+    fringe.push( [problem.getStartState(), [], 0], 0 )
+
+    while True:
+        if fringe.isEmpty(): return False
+        
+        node = fringe.pop()        
+        if problem.isGoalState( node[0] ):
+            return node[1]
+        
+        if node[0] not in closed:
+            closed.add( node[0] )
+            
+            for child in problem.getSuccessors( node[0] ):
+                nextState = child[0]
+                nextDirections = node[1] + [child[1]]
+                travelCost = child[2]
+                nextNodeCost = heuristic( nextState, problem )
+                nextCost = node[2] + travelCost + nextNodeCost
+                newNode = [ nextState, nextDirections, nextCost ]
+                fringe.push( newNode, nextCost )
 
 
 # Abbreviations

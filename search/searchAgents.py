@@ -288,6 +288,12 @@ class CornersProblem(search.SearchProblem):
         # Please add any code here which you would like to use
         # in initializing the problem
         "*** YOUR CODE HERE ***"
+        self.cornersVisited = set()
+        self.goal = set()
+        for corner in self.corners:
+            self.goal.add( corner )
+        self.startState = self.startingPosition
+
 
     def getStartState(self):
         """
@@ -295,14 +301,18 @@ class CornersProblem(search.SearchProblem):
         space)
         """
         "*** YOUR CODE HERE ***"
-        util.raiseNotDefined()
+        return self.startingGameState
+        #util.raiseNotDefined()
 
     def isGoalState(self, state):
         """
         Returns whether this search state is a goal state of the problem.
         """
         "*** YOUR CODE HERE ***"
-        util.raiseNotDefined()
+        if self.cornersVisited == self.goal:
+            return True
+        else:
+            return False 
 
     def getSuccessors(self, state):
         """
@@ -317,14 +327,22 @@ class CornersProblem(search.SearchProblem):
 
         successors = []
         for action in [Directions.NORTH, Directions.SOUTH, Directions.EAST, Directions.WEST]:
-            # Add a successor state to the successor list if the action is legal
-            # Here's a code snippet for figuring out whether a new position hits a wall:
-            #   x,y = currentPosition
-            #   dx, dy = Actions.directionToVector(action)
-            #   nextx, nexty = int(x + dx), int(y + dy)
-            #   hitsWall = self.walls[nextx][nexty]
+            x = state[0]
+            y = state[1]
+            visitedCorners = state[2] 
+            dx, dy = Actions.directionToVector(action)
+            nextx, nexty = int(x + dx), int(y + dy)
+            for corner in corners:
+                if (nextx, nexty) == corner:
+                    visitedCorners.add( corner )
 
-            "*** YOUR CODE HERE ***"
+
+            if not self.walls[nextx][nexty]:
+                nextState = (nextx, nexty, self.visited)
+                cost = self.costFn(nextState)
+                successors.append( ( nextState, action, cost) )
+
+    
 
         self._expanded += 1 # DO NOT CHANGE
         return successors
