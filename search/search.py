@@ -162,9 +162,10 @@ def aStarSearch(problem, heuristic=nullHeuristic):
 
     closed = set()
     fringe = util.PriorityQueue() 
+    initialCost = heuristic( problem.getStartState(), problem )
 
     # each node will be a list of: the state, the steps taken so far, and cost.
-    fringe.push( [problem.getStartState(), [], 0], 0 )
+    fringe.push( [problem.getStartState(), [], 0], initialCost )
 
     while True:
         if fringe.isEmpty(): return False
@@ -179,10 +180,12 @@ def aStarSearch(problem, heuristic=nullHeuristic):
             for child in problem.getSuccessors( node[0] ):
                 nextState = child[0]
                 nextDirections = node[1] + [child[1]]
-                travelCost = child[2]
-                nextNodeCost = heuristic( nextState, problem )
-                nextCost = node[2] + travelCost + nextNodeCost
-                newNode = [ nextState, nextDirections, nextCost ]
+
+                g = node[2] + child[2]
+                h = heuristic( nextState, problem )
+
+                nextCost = g + h
+                newNode = [ nextState, nextDirections, g ]
                 fringe.push( newNode, nextCost )
 
 
