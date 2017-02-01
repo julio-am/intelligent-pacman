@@ -287,12 +287,11 @@ class CornersProblem(search.SearchProblem):
         self._expanded = 0 # DO NOT CHANGE; Number of search nodes expanded
         # Please add any code here which you would like to use
         # in initializing the problem
-        "*** YOUR CODE HERE ***"
-        self.cornersVisited = set()
-        self.goal = set()
+        self.initialCorners = set()
+        self.goal = set(self.corners)
         for corner in self.corners:
-            self.goal.add( corner )
-        self.startState = self.startingPosition
+            if self.startingPosition == corner:
+                initialCorners.add( corner )
 
 
     def getStartState(self):
@@ -301,18 +300,16 @@ class CornersProblem(search.SearchProblem):
         space)
         """
         "*** YOUR CODE HERE ***"
-        return self.startingGameState
-        #util.raiseNotDefined()
+        x,y = self.startingPosition
+        return ( x, y, tuple(self.initialCorners) ) 
 
     def isGoalState(self, state):
         """
         Returns whether this search state is a goal state of the problem.
         """
         "*** YOUR CODE HERE ***"
-        if self.cornersVisited == self.goal:
-            return True
-        else:
-            return False 
+        return set(state[2]) == self.goal
+        
 
     def getSuccessors(self, state):
         """
@@ -329,17 +326,17 @@ class CornersProblem(search.SearchProblem):
         for action in [Directions.NORTH, Directions.SOUTH, Directions.EAST, Directions.WEST]:
             x = state[0]
             y = state[1]
-            visitedCorners = state[2] 
+            cornersVisited = set(state[2])
             dx, dy = Actions.directionToVector(action)
             nextx, nexty = int(x + dx), int(y + dy)
-            for corner in corners:
-                if (nextx, nexty) == corner:
-                    visitedCorners.add( corner )
-
 
             if not self.walls[nextx][nexty]:
-                nextState = (nextx, nexty, self.visited)
-                cost = self.costFn(nextState)
+                for corner in self.corners:
+                    if (nextx, nexty) == corner:
+                        cornersVisited.add( corner )
+
+                nextState = (nextx, nexty, tuple(cornersVisited))
+                cost = 1
                 successors.append( ( nextState, action, cost) )
 
     
