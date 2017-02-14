@@ -157,8 +157,7 @@ class MinimaxAgent(MultiAgentSearchAgent):
 
           Here are some method calls that might be useful when implementing minimax.
 
-          gameState.getLegalActions(agentIndex):
-            Returns a list of legal actions for an agent
+          gameState.getLegalActions(agentIndex): Returns a list of legal actions for an agent
             agentIndex=0 means Pacman, ghosts are >= 1
 
           gameState.generateSuccessor(agentIndex, action): Returns the successor game state after an agent takes an action
@@ -169,8 +168,42 @@ class MinimaxAgent(MultiAgentSearchAgent):
 
           gameState.isLose(): Returns whether or not the game state is a losing state
         """
-        "*** YOUR CODE HERE ***"
+        
+
+        # Collect legal moves and successor states
+        legalMoves = gameState.getLegalActions()
+        scores = [self.evaluationFunction(gameState, action) for action in legalMoves]
+
+
+        if (self.depth == 0): return self.getScore()
+
+        legalMoves = gameState.getLegalActions(agentIndex)
+        gameState  = currentGameState.generatePacmanSuccessor(action)
+
+        if ( agentIndex == 0 ):
+            value = -float('inf')
+            for action in gameState.getLegalActions():
+                nextState = action.generateSuccessor)()
+                tempValue = MinimaxAgent(nextState, self.depth-1, agentIndex)
+                if tempValue > value:
+                    value = tempValue
+            return value
+
+
+        if ( agentIndex > 0 ):
+            value = float('inf')
+            for action in gameState.getLegalActions();
+                nextState = action.generateSuccessor()
+                tempValue = MinimaxAgent(nextState, self.depth-1, agentIndex+1)
+                if tempValue < value:
+                    value = tempValue
+            return value
+
+
+
+
         util.raiseNotDefined()
+
 
 class AlphaBetaAgent(MultiAgentSearchAgent):
     """
