@@ -34,7 +34,6 @@ import collections
 class ValueIterationAgent(ValueEstimationAgent):
     """
         * Please read learningAgents.py before reading this.*
-
         A ValueIterationAgent takes a Markov decision process
         (see mdp.py) on initialization and runs value iteration
         for a given number of iterations using the supplied
@@ -45,7 +44,6 @@ class ValueIterationAgent(ValueEstimationAgent):
           Your value iteration agent should take an mdp on
           construction, run the indicated number of iterations
           and then act according to the resulting policy.
-
           Some useful mdp methods you will use:
               mdp.getStates()
               mdp.getPossibleActions(state)
@@ -57,30 +55,30 @@ class ValueIterationAgent(ValueEstimationAgent):
         self.discount = discount
         self.iterations = iterations
         self.values = util.Counter() # A Counter is a dict with default 0
+        # Write value iteration code here
         self.runValueIteration()
 
     def runValueIteration(self):
-        # Write value iteration code here
-
-        values = self.values
-        discount = self.discount
+        values = util.Counter()
 
         for i in range(self.iterations):
+            values = self.values.copy()
+
             for state in self.mdp.getStates():
+                possibleVals = []
+
                 if self.mdp.isTerminal(state):
                     self.values[state] = 0
+   
                 else:
                     for action in self.mdp.getPossibleActions(state):
                         tempValue = 0
+                        
                         for t in self.mdp.getTransitionStatesAndProbs(state, action):
-                            nextState   = t[0]
-                            probability = t[1]
-                            tempValue += transValue
-                                         * (self.mdp.getReward(state, action, probability) 
-                                         + discount* "currentvalue"
- 
+                            tempValue += t[1]*(self.mdp.getReward(state, action, t[0]) + self.discount * values[t[0]])
+                        possibleVals.append(tempValue)
 
-
+                    self.values[state] = max(possibleVals)
 
 
     def getValue(self, state):
@@ -95,8 +93,11 @@ class ValueIterationAgent(ValueEstimationAgent):
           Compute the Q-value of action in state from the
           value function stored in self.values.
         """
-        "*** YOUR CODE HERE ***"
-        util.raiseNotDefined()
+        value = 0
+        for t in self.mdp.getTransitionStatesAndProbs(state, action):
+            value += t[1] * (self.mdp.getReward(state, action, t[0]) + self.discount *self.values[t[0]])
+        return value
+        
 
     def computeActionFromValues(self, state):
         """
@@ -107,10 +108,26 @@ class ValueIterationAgent(ValueEstimationAgent):
           there are no legal actions, which is the case at the
           terminal state, you should return None.
         """
-        "*** YOUR CODE HERE ***"
-        util.raiseNotDefined()
+        if self.mdp.isTerminal(state):
+            return None
+        else:
+            value = -float("inf")
+            bestAction = None
+
+            for action in self.mdp.getPossibleActions(state):
+                tempVal = 0
+
+                for t in self.mdp.getTransitionStatesAndProbs(state, action):
+                    tempVal += t[1] * (self.mdp.getReward(state, action, t[0]) + self.discount * self.values[t[0]])
+                if tempVal > value:
+                    value = tempVal
+                    bestAction = action
+            return bestAction
+
+
 
     def getPolicy(self, state):
+        value = 0
         return self.computeActionFromValues(state)
 
     def getAction(self, state):
@@ -148,7 +165,26 @@ class AsynchronousValueIterationAgent(ValueIterationAgent):
         ValueIterationAgent.__init__(self, mdp, discount, iterations)
 
     def runValueIteration(self):
-        "*** YOUR CODE HERE ***"
+        values = util.Counter()
+        states = self.mdp.getStates()
+
+        for i in range(self.iterations):
+            currentState = states[i%len(states)]
+            values = self.values.copy()
+            possibleVals = []
+
+            if self.mdp.isTerminal(currentState):
+                self.values[currentState] = 0
+   
+            else:
+                for action in self.mdp.getPossibleActions(currentState):
+                    tempValue = 0
+                    
+                    for t in self.mdp.getTransitionStatesAndProbs(currentState, action):
+                        tempValue += t[1]*(self.mdp.getReward(currentState, action, t[0]) + self.discount * values[t[0]])
+                    possibleVals.append(tempValue)
+
+                self.values[currentState] = max(possibleVals)
 
 class PrioritizedSweepingValueIterationAgent(AsynchronousValueIterationAgent):
     """
