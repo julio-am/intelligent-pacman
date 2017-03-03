@@ -22,21 +22,6 @@ class QLearningAgent(ReinforcementAgent):
     """
       Q-Learning Agent
 
-      Functions you should fill in:
-        - computeValueFromQValues
-        - computeActionFromQValues
-        - getQValue
-        - getAction
-        - update
-
-      Instance variables you have access to
-        - self.epsilon (exploration prob)
-        - self.alpha (learning rate)
-        - self.discount (discount rate)
-
-      Functions you should use
-        - self.getLegalActions(state)
-          which returns legal actions for a state
     """
     def __init__(self, **args):
         "You can initialize Q-values here."
@@ -97,7 +82,7 @@ class QLearningAgent(ReinforcementAgent):
         legalActions = self.getLegalActions(state)
         
         if util.flipCoin(self.epsilon):
-            return random.coice(legalActions)
+            return random.choice(legalActions)
         else:
             return self.computeActionFromQValues(state)
      
@@ -106,18 +91,12 @@ class QLearningAgent(ReinforcementAgent):
         """
           The parent class calls this to observe a
           state = action => nextState and reward transition.
-          You should do your Q-Value update here
-
-          NOTE: You should never call this function,
-          it will be called on your behalf
         """
         value  = (1 - self.alpha) * self.getQValue(state, action)
         update = reward + (self.discount * self.computeValueFromQValues(nextState))
         
         self.qValues[(state, action)] = value + (self.alpha * update)
         
-
-
 
 
     def getPolicy(self, state):
@@ -180,15 +159,26 @@ class ApproximateQAgent(PacmanQAgent):
           Should return Q(state,action) = w * featureVector
           where * is the dotProduct operator
         """
-        "*** YOUR CODE HERE ***"
-        util.raiseNotDefined()
+        features = self.featExtractor.getFeatures(state, action)
+        weights = self.getWeights()
+        qValue = 0.0
+
+        for feature in features:
+            qValue += features[feature] * self.weights[feature]
+        return qValue
 
     def update(self, state, action, nextState, reward):
         """
            Should update your weights based on transition
         """
-        "*** YOUR CODE HERE ***"
-        util.raiseNotDefined()
+        features = self.featExtractor.getFeatures(state, action)
+        
+        for feature in features:
+            aPrime = reward + self.discount*self.computeValueFromQValues(nextState)
+            difference = aPrime - self.getQValue(state, action)
+            self.weights[feature] += self.alpha * difference * features[feature]
+
+
 
     def final(self, state):
         "Called at the end of each game."
