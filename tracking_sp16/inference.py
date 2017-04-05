@@ -74,16 +74,16 @@ class DiscreteDistribution(dict):
         >>> empty
         {}
         """
-        keySum = 0.0
-        for key in self.keys():
-            keySum += self[key]
 
-        if keySum == 0.0:
-            return
+        total = self.total()
+
+        if total == 0:
+            return 
 
         for key in self.keys():
-            self[key] = self[key]/keySum
-        return self
+            self[key] = self[key]/total
+        return 
+
 
     def sample(self):
         """
@@ -106,16 +106,20 @@ class DiscreteDistribution(dict):
         >>> round(samples.count('d') * 1.0/N, 1)
         0.0
         """
-        randInt = randInt(0, 1)
-        distCopy = self.normalize()
+        randInt = random.random()
+        distCopy = self.copy()
+        distCopy.normalize()
 
-        keySum = 0.0
-        for key in dostCopy():
-            keySum += distCopy[key]
-            if randInt <= keySum:
+        lowerBound = 0.0
+        upperBound = 0.0
+
+        for key in sorted(distCopy):
+            lowerBound = upperBound
+            upperBound += distCopy[key]
+
+            if randInt >= lowerBound and randInt <= upperBound:
                 return key
         return None
-
 
 
 
@@ -185,7 +189,18 @@ class InferenceModule:
         """
         Return the probability P(noisyDistance | pacmanPosition, ghostPosition).
         """
-        "*** YOUR CODE HERE ***"
+
+        if noisyDistance == None:
+            if ghostPosition == jailPosition:
+                return 1
+            else:
+                return 0
+        else:
+            if ghostPosition == jailPosition:
+                return 0
+
+        trueDistance = manhattanDistance(pacmanPosition, ghostPosition)
+        return busters.getObservationProbability(noisyDistance, trueDistance)
 
     def setGhostPosition(self, gameState, ghostPosition, index):
         """
@@ -292,8 +307,11 @@ class ExactInference(InferenceModule):
         current position. However, this is not a problem, as Pacman's current
         position is known.
         """
-        "*** YOUR CODE HERE ***"
+        
+        for pos in self.allPositions:
+            self.beliefs[pos]  *= self.getObservationProb(observation, gameState.getPacmanPosition(), pos, self.getJailPosition())
         self.beliefs.normalize()
+        
 
     def elapseTime(self, gameState):
         """
