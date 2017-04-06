@@ -324,6 +324,14 @@ class ExactInference(InferenceModule):
         """
         "*** YOUR CODE HERE ***"
 
+        for oldPos in self.legalPositions:
+            newPosDist = self.getPositionDistribution(gameState, oldPos)
+            for newPos, prob in newPosDist.items():
+                self.beliefs[newPos] += self.beliefs[oldPos]*prob
+
+        self.beliefs.normalize()
+
+
     def getBeliefDistribution(self):
         return self.beliefs
 
@@ -348,7 +356,11 @@ class ParticleFilter(InferenceModule):
         self.particles for the list of particles.
         """
         self.particles = []
-        "*** YOUR CODE HERE ***"
+        for i in range(self.numParticles):
+            self.particles.append(self.legalPositions[i%len(self.legalPositions)])
+        return self.particles
+
+
 
     def observeUpdate(self, observation, gameState):
         """
@@ -377,7 +389,18 @@ class ParticleFilter(InferenceModule):
         locations conditioned on all evidence and time passage. This method
         essentially converts a list of particles into a belief distribution.
         """
-        "*** YOUR CODE HERE ***"
+        beliefs = DiscreteDistribution()
+
+        for position in self.particles:
+            if position in beliefs:
+                beliefs[position] += 1.0
+            else:
+                beliefs[position] = 1.0
+
+        beliefs.normalize()
+        
+        return beliefs
+        
 
 
 class JointParticleFilter(ParticleFilter):
