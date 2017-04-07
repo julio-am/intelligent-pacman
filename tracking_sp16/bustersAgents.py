@@ -144,7 +144,8 @@ class GreedyBustersAgent(BustersAgent):
 
         bestDistance = float("inf")
         bestAction = None
-
+        
+        """http://www.thegeekstuff.com/2014/06/python-sorted/"""
         ghostPositions = [max(belief, key=belief.get) for belief in livingGhostPositionDistributions]
     
         for ghostPos in ghostPositions:
