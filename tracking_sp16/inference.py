@@ -296,6 +296,7 @@ class ExactInference(InferenceModule):
         """
         Update beliefs based on the distance observation and Pacman's position.
 
+
         The observation is the noisy Manhattan distance to the ghost you are
         tracking.
 
@@ -324,12 +325,17 @@ class ExactInference(InferenceModule):
         """
         "*** YOUR CODE HERE ***"
 
-        for oldPos in self.legalPositions:
-            newPosDist = self.getPositionDistribution(gameState, oldPos)
-            for newPos, prob in newPosDist.items():
-                self.beliefs[newPos] += self.beliefs[oldPos]*prob
 
-        self.beliefs.normalize()
+        newBeliefs = DiscreteDistribution()
+
+        for oldPos in self.allPositions:
+            newPosDist = self.getPositionDistribution(gameState, oldPos)
+
+            for newPos, prob in newPosDist.items():
+                newBeliefs[newPos] += self.beliefs[oldPos]*prob
+
+        newBeliefs.normalize()
+        self.beliefs = newBeliefs
 
 
     def getBeliefDistribution(self):
@@ -374,7 +380,22 @@ class ParticleFilter(InferenceModule):
         be reinitialized by calling initializeUniformly. The total method of
         the DiscreteDistribution may be useful.
         """
-        "*** YOUR CODE HERE ***"
+
+        weights = DiscreteDistribution()
+        for particle in self.particles:
+            weights[particle] += self.getObservationProb(observation, gameState.getPacmanPosition(), particle, self.getJailPosition())
+            
+        if weights.total() == 0:
+            self.particles = self.initializeUniformly(gameState)
+            return
+
+        newParticles = []
+        for i in range(self.numParticles):
+            newParticles.append(weights.sample())
+
+        self.particles = newParticles
+
+
 
     def elapseTime(self, gameState):
         """
@@ -382,6 +403,16 @@ class ParticleFilter(InferenceModule):
         gameState.
         """
         "*** YOUR CODE HERE ***"
+
+        newParticles = []
+
+        for oldPos in self.particles:
+            newPosDist = self.getPositionDistribution(gameState, oldPos)
+            newParticles.append(newPosDist.sample())    
+
+        self.particles = newParticles
+
+
 
     def getBeliefDistribution(self):
         """
@@ -426,8 +457,14 @@ class JointParticleFilter(ParticleFilter):
         should be evenly distributed across positions in order to ensure a
         uniform prior.
         """
+        posBank = list(itertools.product(self.legalPositions, repeat=self.numGhosts))
+
+        random.shuffle(posBank)
+
         self.particles = []
-        "*** YOUR CODE HERE ***"
+        for i in range(self.numParticles):
+            self.particles.append(posBank[i%len(posBank)])
+
 
     def addGhostAgent(self, agent):
         """
@@ -459,7 +496,27 @@ class JointParticleFilter(ParticleFilter):
         be reinitialized by calling initializeUniformly. The total method of
         the DiscreteDistribution may be useful.
         """
-        "*** YOUR CODE HERE ***"
+        
+        weights = [DiscreteDistribution() for ghost in range (self.numGhosts) ]
+        
+        for ghost in range(self.numGhosts):
+            for particle in self.particles:  
+
+                if particle[ghost] ==   None:
+                    continue
+                weights[ghost][particle[ghost]] += self.getObservationProb(observation[ghost], gameState.getPacmanPosition(), particle[ghost], self.getJailPosition(ghost))
+
+        newParticles = []
+        for i in range(self.numParticles):
+            newP = []
+            for dist in weights:
+                newP.append(dist.sample())
+            newParticles.append(tuple(newP))
+        self.particles = newParticles
+
+
+
+
 
     def elapseTime(self, gameState):
         """
