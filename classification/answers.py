@@ -13,4 +13,4 @@
 
 
 def q2():
-    return "a"
+    return "no answers on GitHub"
